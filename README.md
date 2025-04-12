@@ -1,0 +1,1 @@
+# List_Server_Permissions_And_Generate_Grant_TSQL
