@@ -1,0 +1,29 @@
+-- List all server-level permissions with GRANT statement syntax
+SELECT 
+    sp.class,
+    sp.class_desc,
+    sp.major_id,
+    sp.minor_id,
+    sp.grantee_principal_id,
+    sp.grantor_principal_id,
+    sp.type,
+    sp.permission_name,
+    sp.state,
+    sp.state_desc,
+    grantee.name AS grantee_principal_name,
+    grantee.type_desc AS grantee_principal_type_desc,
+    grantor.name AS grantor_name,
+    -- Generates GRANT/DENY/REVOKE statement as a string
+    CASE 
+        WHEN sp.state = N'W' THEN N'GRANT'
+        ELSE sp.state_desc
+    END + N' ' + sp.permission_name COLLATE SQL_Latin1_General_CP1_CI_AS + 
+        N' TO ' + QUOTENAME(grantee.name) AS permission_statement
+FROM 
+    sys.server_permissions AS sp
+INNER JOIN 
+    sys.server_principals AS grantee ON sp.grantee_principal_id = grantee.principal_id
+INNER JOIN 
+    sys.server_principals AS grantor ON sp.grantor_principal_id = grantor.principal_id
+ORDER BY 
+    grantee.name, sp.permission_name;
